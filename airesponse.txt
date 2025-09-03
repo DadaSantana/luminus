@@ -1,0 +1,221 @@
+The mission is to construct a finance system framework utilizing HTML, CSS, JavaScript, and PHP. This will be achieved through a sequential agent workflow, initiated by the Architect Agent (using the `gemini-2.5-pro-preview-06-05` model), whose role is to outline the structural blueprint, determining the essential HTML, CSS, JavaScript, and PHP components, leveraging a Built-in Tool (Google Search) to find code examples of common UI elements and database connection methods, and creating a skeletal framework defining file organization (e.g., index.html, style.css, script.js, and connect.php), and overall system architecture. The Architect Agent then passes this framework to the Implementation Agent (using the `gemini-2.0-flash` model), which focuses on fleshing out the framework with actual code, utilizing Function Tools to generate HTML forms for inputting financial data, CSS for styling, and JavaScript functions for basic client-side validation and interactivity, including using third-party libraries if necessary for charting or data display. The Implementation Agent uses the framework provided to create the user interface and basic scripting, then hands off to the Backend Agent (using the `gemini-2.0-flash` model), who focuses on the PHP-based server-side logic. The Backend Agent leverages a Function Tool to develop PHP scripts for database interaction (connecting to a MySQL database, for example), handling user authentication (if needed), and processing financial transactions, creating API endpoints that the JavaScript can call. As an example, the Architect might specify a file named `connect.php` and the Backend Agent would implement the database connection logic within this file. Finally, the Testing Agent (using the `gemini-2.0-flash` model) will run tests to validate the system, using Function Tools to check form input validation, database interactions, and response times. For instance, the Testing Agent would ensure that invalid data entered in the HTML forms is correctly flagged by the JavaScript validation and that the PHP scripts accurately record transactions in the database.
+ requirements, event handlers",
+          "output_schema": "JavaScript code"
+        }
+      ],
+      "model": "gemini-2.0-flash",
+      "memory": false,
+      "output_key": "implementation_code",
+      "before_model_callback": "langfuse_before_model",
+      "after_model_callback": "langfuse_after_model"
+    },
+    {
+      "name": "Backend",
+      "role": "Develops PHP-based server-side logic for database interaction, user authentication, and transaction processing. Sequential Agent.",
+      "goals": [
+        "Develop PHP scripts for connecting to a MySQL database.",
+        "Implement user authentication (if required).",
+        "Create API endpoints for JavaScript interaction.",
+        "Process financial transactions."
+      ],
+      "tools": [
+        {
+          "name": "PHPScriptGenerator",
+          "purpose": "Generate PHP code for database interaction, authentication, and transaction processing. Function Tool.",
+          "input_schema": "JSON: Database schema, authentication requirements, transaction logic",
+          "output_schema": "PHP code"
+        }
+      ],
+      "model": "gemini-2.0-flash",
+      "memory": false,
+      "output_key": "backend_code",
+      "before_model_callback": "langfuse_before_model",
+      "after_model_callback": "langfuse_after_model"
+    },
+    {
+      "name": "Testing",
+      "role": "Runs tests to validate the system's functionality. Sequential Agent.",
+      "goals": [
+        "Check form input validation.",
+        "Validate database interactions.",
+        "Measure response times."
+      ],
+      "tools": [
+        {
+          "name": "ValidationTester",
+          "purpose": "Tests HTML form validation. Function Tool.",
+          "input_schema": "HTML form code, validation rules",
+          "output_schema": "Validation results (pass/fail)"
+        },
+        {
+          "name": "DatabaseTester",
+          "purpose": "Tests PHP database interactions. Function Tool.",
+          "input_schema": "PHP code, database queries",
+          "output_schema": "Database interaction results (pass/fail, query results)"
+        },
+        {
+          "name": "ResponseTimeTester",
+          "purpose": "Measures response times of PHP scripts. Function Tool.",
+          "input_schema": "PHP script URL",
+          "output_schema": "Response time in milliseconds"
+        }
+      ],
+      "model": "gemini-2.0-flash",
+      "memory": false,
+      "output_key": "testing_results",
+      "before_model_callback": "langfuse_before_model",
+      "after_model_callback": "langfuse_after_model"
+    }
+  ],
+  "orchestration": {
+    "strategy": "Sequential",
+    "communication": "Direct function calls (Agent-as-Tool)",
+    "max_iterations": null
+  },
+  "environment": "Localhost with PHP and MySQL",
+  "data_sources": [
+    "MySQL database",
+    "Local file system"
+  ]
+}
+```atabase, including:
+    *   Creating database tables for storing user accounts (if authentication is required) and financial transactions.
+    *   Inserting, updating, and deleting transaction records.
+    *   Retrieving transaction data based on various criteria (e.g., date range, category).
+3.  **Security:** Implement appropriate security measures to protect against SQL injection and other common web vulnerabilities.
+4.  **Integration:** Integrate the generated PHP scripts into the `php/` directory. Ensure that the JavaScript code in `script.js` can successfully call the PHP API endpoints.
+5.  **Output:** The Backend agent will output the complete PHP code for database interaction, user authentication, and transaction processing. This will be stored in the `backend_code` output key.
+
+**Testing Agent:**
+
+1.  **Form Validation Testing (ValidationTester Tool):**
+    *   Use the `ValidationTester` tool to test the client-side form validation implemented in JavaScript. Ensure that all validation rules are correctly enforced and that informative error messages are displayed to the user.
+2.  **Database Interaction Testing (DatabaseTester Tool):**
+    *   Use the `DatabaseTester` tool to test the PHP scripts for database interaction. Ensure that transactions are correctly recorded in the database, that data can be retrieved accurately, and that database operations are performed securely.
+3.  **Response Time Testing (ResponseTimeTester Tool):**
+    *   Use the `ResponseTimeTester` tool to measure the response times of the PHP API endpoints. Ensure that the response times are acceptable for a smooth user experience.
+4.  **Reporting:** Generate a report summarizing the testing results, including any errors or performance issues that were identified.
+5.  **Output:** The Testing agent will output the testing results, including validation results, database interaction results, and response times. This will be stored in the `testing_results` output key.
+
+This detailed plan provides a step-by-step approach for each agent to create the finance system framework. Each agent will focus on its specific responsibilities, using the appropriate tools and models to achieve its goals. The sequential orchestration ensures that each agent builds upon the work of the previous agent, resulting in a complete and functional system.
+e transaction form within `index.html`. The form should include the following fields:
+    *   `date`: type `date`, required.
+    *   `description`: type `text`, required, max length 255.
+    *   `amount`: type `number`, required, `step="0.01"`.
+    *   `type`: type `select` with options "Income" and "Expense", required.
+    *   `category`: type `text`, required.
+    *   A submit button.
+
+2.  **Enhance CSS:** Use the `CSSStylingGenerator` tool to improve `css/style.css`. Focus on styling the form for better usability, improving the navigation bar, and ensuring a responsive layout.
+
+3.  **Implement JavaScript Logic:** Use the `JavaScriptFunctionGenerator` tool to enhance `js/script.js`:
+    *   **Validation:** Implement a validation function that checks all form fields before submission. It must ensure no fields are empty and the amount is a valid number. Display user-friendly error messages if validation fails.
+    *   **AJAX Submission:** Implement the `fetch` API call (commented out in the skeleton) to send the form data to `php/api/add_transaction.php` using the `POST` method. Handle both success and error responses from the server.
+
+---
+
+### **Phase 3: Backend Agent's Task (Server-Side)**
+
+1.  **Database Schema:** Assume the following MySQL table exists in the `finance_db` database:
+    ```sql
+    CREATE TABLE transactions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        transaction_date DATE NOT NULL,
+        description VARCHAR(255) NOT NULL,
+        amount DECIMAL(10, 2) NOT NULL,
+        type ENUM('Income', 'Expense') NOT NULL,
+        category VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    ```
+
+2.  **Implement API Endpoint:** Use the `PHPScriptGenerator` tool to create the file `php/api/add_transaction.php`.
+    *   This script must `require` or `include` `../connect.php`.
+    *   It must check if the request method is `POST`.
+    *   Retrieve and **sanitize** all input data from the `$_POST` superglobal (e.g., using `htmlspecialchars` and type casting).
+    *   Use **prepared statements** (MySQLi or PDO) to prevent SQL injection when inserting the data into the `transactions` table.
+    *   Return a JSON response indicating success or failure.
+        *   Success: `{"status": "success", "message": "Transaction added."}`
+        *   Error: `{"status": "error", "message": "Error description."}`
+
+---
+
+### **Phase 4: Testing Agent's Task (Validation)**
+
+1.  **Client-Side Validation:** Use the `ValidationTester` tool to test the JavaScript form validation in `index.html`. Test cases should include empty fields, non-numeric amounts, etc.
+2.  **Database Interaction:** Use the `DatabaseTester` tool to send valid and invalid POST requests to `php/api/add_transaction.php`. Verify that valid data is correctly inserted into the MySQL database and that the script handles invalid data gracefully (returns an error JSON).
+3.  **Response Time:** Use the `ResponseTimeTester` tool to measure the response time of the `add_transaction.php` endpoint under normal load.
+
+---
+
+## 5. Tooling Specification
+
+| Tool Name                 | Agent            | Type           | Purpose                                                              |
+| ------------------------- | ---------------- | -------------- | -------------------------------------------------------------------- |
+| `GoogleSearch`            | Architect        | Built-in Tool  | Find code examples for UI elements and DB connection methods.        |
+| `HTMLFormGenerator`       | Implementation   | Function Tool  | Generate HTML code for the financial data input form.                |
+| `CSSStylingGenerator`     | Implementation   | Function Tool  | Generate CSS code for styling the UI components.                     |
+| `JavaScriptFunctionGenerator` | Implementation   | Function Tool  | Generate JS functions for validation and interactivity.              |
+| `PHPScriptGenerator`      | Backend          | Function Tool  | Generate PHP code for database interaction and transaction logic.    |
+| `ValidationTester`        | Testing          | Function Tool  | Test HTML form validation logic implemented in JavaScript.           |
+| `DatabaseTester`          | Testing          | Function Tool  | Test PHP database interactions and API endpoint integrity.           |
+| `ResponseTimeTester`      | Testing          | Function Tool  | Measure response times of the PHP API endpoints.                     |
+
+---
+
+## 6. Research & Code References
+
+The `Architect` agent should use its `GoogleSearch` tool to find best-practice examples for the following topics to inform its skeletal code generation:
+
+*   "HTML transaction form example"
+*   "CSS responsive navigation bar"
+*   "PHP MySQLi connection script"
+*   "JavaScript form validation example"
+*   "JavaScript fetch API POST example"
+*   "PHP prepared statements mysqli example"
+
+This specification provides a comprehensive and unified plan. The `coder_agent` is to follow these instructions sequentially to build the application framework.
+```the sequence.
+    initial_prompt = (
+        "Start the process to build the finance system framework "
+        "according to the technical specification."
+    )
+
+    try:
+        # Run the sequential agent.
+        result = run(finance_framework_builder, prompt=initial_prompt)
+
+        # Print the final output from the last agent in the sequence.
+        print("\\n\\n✅ Finance Framework Builder process complete!")
+        print("=" * 50)
+        print("Final Testing Report:")
+        print("=" * 50)
+        print(result.output)
+
+        # You can also access the outputs of intermediate agents from the context
+        # For example, to see the architect's output:
+        # architect_output_str = result.context.get("architect_framework")
+        # if architect_output_str:
+        #     architect_output = json.loads(architect_output_str)
+        #     print("\\n\\nArchitect Framework Output:")
+        #     print(json.dumps(architect_output, indent=2))
+
+    except Exception as e:
+        print(f"\\n\\n❌ An unexpected error occurred during the agent execution: {e}")
+        print("The process was terminated.")
+
+"""
+summary = """
+Revisão de Código Concluída.
+
+**Status:** Pronto para Produção.
+
+O código fornecido é de altíssima qualidade e implementa a arquitetura de agentes sequenciais de forma exemplar, utilizando exclusivamente os modelos Google Gemini conforme especificado. A estrutura, as instruções e o uso de ferramentas estão corretos e alinhados com as melhores práticas do ADK.
+
+A seguinte melhoria foi aplicada para garantir robustez e resiliência:
+
+-   **Adição de Bloco `try...except`:** O bloco de execução principal (`if __name__ == "__main__":`) foi encapsulado em um bloco `try...except`. Isso garante que quaisquer erros inesperados durante a execução do agente (ex: falhas de API, problemas de rede, saídas malformadas) sejam capturados de forma elegante, evitando que o script quebre abruptamente e fornecendo uma mensagem de erro clara ao usuário.
+
+Nenhuma outra alteração foi necessária. O código está limpo, modular e pronto para ser utilizado em um ambiente de produção.
+"""
+```
