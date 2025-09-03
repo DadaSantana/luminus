@@ -25,9 +25,9 @@ logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(m
 logger = logging.getLogger("practia.server")
 
 # API Key Configuration
-API_KEY = os.getenv("PRACTIA_API_KEY")
+API_KEY = os.getenv("LUMINUS_API_KEY")
 if not API_KEY:
-    logger.warning("PRACTIA_API_KEY não encontrada no ambiente. API funcionará sem autenticação.")
+    logger.warning("LUMINUS_API_KEY não encontrada no ambiente. API funcionará sem autenticação.")
 
 async def verify_api_key(request: Request):
     """Middleware para verificar API key no header"""
@@ -56,7 +56,7 @@ except Exception as e:
     db = None
     print("Using in-memory storage as fallback")
 
-app = FastAPI(title="Practia", version="1.0.0")
+app = FastAPI(title="Luminus", version="1.0.0")
 
 # Configuração de CORS
 app.add_middleware(
@@ -352,7 +352,7 @@ class SessionDeleteResponse(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "Practia API", "status": "running"}
+    return {"message": "Luminus API", "status": "running"}
 
 @app.get("/health")
 async def health():
@@ -515,7 +515,7 @@ async def process_message_with_agent(message: str) -> str:
         
         # Configurações
         DB_URL = "sqlite:///./multi_agent_data.db"
-        APP_NAME = "Practia"
+        APP_NAME = "Luminus"
         
         # Gerar IDs únicos para esta sessão
         unique_id = str(uuid.uuid4())
@@ -602,7 +602,7 @@ async def process_message_stream(message: str, session_id: Optional[str] = None,
         import uuid as _uuid
 
         DB_URL = "sqlite:///./multi_agent_data.db"
-        APP_NAME = "Practia"
+        APP_NAME = "Luminus"
 
         # Usar IDs recebidos do cliente quando disponíveis para manter consistência
         if session_id is None:

@@ -25,7 +25,7 @@ Este documento consolida a arquitetura, componentes, APIs, modelos de dados, int
 ```
 
 ## Backend (FastAPI)
-- Aplicação principal: `server.py` (título: "Practia").
+- Aplicação principal: `server.py` (título: "Luminus").
 - Principais responsabilidades:
   - Gestão de sessões e histórico de mensagens.
   - Persistência no Firestore (fallback em memória) e ordenação por timestamp do servidor.
@@ -59,14 +59,14 @@ Obs.: `api.py` expõe uma API alternativa de testes (com auth simulada) incluind
 - Fallback: dicionários em memória (`sessions_db`, `messages_db`).
 
 ### Segurança
-- API Key opcional via header `X-API-Key` (variável: `PRACTIA_API_KEY`).
+- API Key opcional via header `X-API-Key` (variável: `LUMINUS_API_KEY`).
 - CORS liberado para desenvolvimento; recomenda-se restringir em produção.
 
 ### Execução Local (Backend)
 1) Preparar ambiente Python 3.11+ e instalar dependências:
    - `pip install -r requirements.txt`
 2) Variáveis de ambiente (.env):
-   - `PRACTIA_API_KEY` (opcional para habilitar middleware de API Key)
+   - `LUMINUS_API_KEY` (opcional para habilitar middleware de API Key)
    - Configuração do Firebase Admin/Firestore via credenciais de serviço (arquivo JSON). Você pode usar `GOOGLE_APPLICATION_CREDENTIALS` apontando para o JSON, ou inicializar via `firebase_config.py`.
 3) Executar:
    - `uvicorn server:app --reload --host 0.0.0.0 --port 8000`

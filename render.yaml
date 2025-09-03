@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: practia-backend
+    name: luminus-backend
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
@@ -8,7 +8,7 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
-      - key: PRACTIA_API_KEY
+      - key: LUMINUS_API_KEY
         sync: false
       - key: FIREBASE_PROJECT_ID
         sync: false
