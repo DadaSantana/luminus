@@ -7,7 +7,8 @@ import uuid
 
 # Third-party imports
 from dotenv import load_dotenv
-from google.adk.agents import LlmAgent, LoopAgent
+from google.adk.agents import LoopAgent
+from google.adk.agents import Agent, LlmAgent
 from google.adk.artifacts import InMemoryArtifactService
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
@@ -93,7 +94,7 @@ def load_instruction_from_file(file_name: str) -> str:
 # Define sub-agents
 enrichment_agent = LlmAgent(
     name="enrichment_agent",
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     instruction=load_instruction_from_file("enrichment_agent_instruction.txt"),
     output_key='enrichment_output',
     before_agent_callback=opik_tracer.before_agent_callback,
@@ -104,22 +105,10 @@ enrichment_agent = LlmAgent(
     after_tool_callback=opik_tracer.after_tool_callback,
 )
 
-structure_agent = LlmAgent(
-    name="structure_agent",
-    model="gemini-2.0-flash",
-    instruction=load_instruction_from_file("structure_agent_instruction.txt"),
-    output_key='structure_output',
-    before_agent_callback=opik_tracer.before_agent_callback,
-    after_agent_callback=opik_tracer.after_agent_callback,
-    before_model_callback=opik_tracer.before_model_callback,
-    after_model_callback=opik_tracer.after_model_callback,
-    before_tool_callback=opik_tracer.before_tool_callback,
-    after_tool_callback=opik_tracer.after_tool_callback,
-)
 
 search_agent = LlmAgent(
     name="search_agent",
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     instruction=load_instruction_from_file("search_agent_instruction.txt"),
     tools=[google_search],
     output_key='search_output',
@@ -131,58 +120,48 @@ search_agent = LlmAgent(
     after_tool_callback=opik_tracer.after_tool_callback,
 )
 
-tech_lead_agent = LlmAgent(
-    name="tech_lead_agent",
-    model="gemini-2.5-pro-preview-06-05", # Using a more powerful model for aggregation and planning
-    instruction=load_instruction_from_file("tech_lead_agent_instruction.txt"),
-    output_key='tech_lead_output',
-    before_agent_callback=opik_tracer.before_agent_callback,
-    after_agent_callback=opik_tracer.after_agent_callback,
-    before_model_callback=opik_tracer.before_model_callback,
-    after_model_callback=opik_tracer.after_model_callback,
-    before_tool_callback=opik_tracer.before_tool_callback,
-    after_tool_callback=opik_tracer.after_tool_callback,
+
+# Create a self-reflecting agent system
+main_agent = LlmAgent(
+    name="content_creator",
+    model="gemini-2.5-pro",
+    instruction="You are a content creator who generates clear, informative text on various topics.",
+    description="Creates initial content based on user requests"
 )
 
-coder_agent = LlmAgent(
-    name="coder_agent",
-    model="gemini-2.5-pro-preview-06-05", # Using a more powerful model for coding
-    instruction=load_instruction_from_file("coder_agent_instruction.txt"),
-    output_key='coder_output',
-    before_agent_callback=opik_tracer.before_agent_callback,
-    after_agent_callback=opik_tracer.after_agent_callback,
-    before_model_callback=opik_tracer.before_model_callback,
-    after_model_callback=opik_tracer.after_model_callback,
-    before_tool_callback=opik_tracer.before_tool_callback,
-    after_tool_callback=opik_tracer.after_tool_callback,
+critique_agent = LlmAgent(
+    name="content_evaluator",
+    model="gemini-2.5-flash",  # Can use a lighter model for critique
+    instruction="""You are a critical evaluator of content.
+    For each piece of content, analyze:
+    - Clarity and coherence
+    - Factual accuracy
+    - Completeness
+    - Relevance to the original request
+    Provide specific suggestions for improvement.""",
+    description="Evaluates content and provides constructive feedback"
 )
 
-coder_reviewer_agent = LlmAgent(
-    name="coder_reviewer_agent",
-    model="gemini-2.5-pro-preview-06-05", # Can be a less powerful model if only reviewing
-    instruction=load_instruction_from_file("coder_reviewer_instruction.txt"),
-    output_key='coder_reviewer_output',
-    before_agent_callback=opik_tracer.before_agent_callback,
-    after_agent_callback=opik_tracer.after_agent_callback,
-    before_model_callback=opik_tracer.before_model_callback,
-    after_model_callback=opik_tracer.after_model_callback,
-    before_tool_callback=opik_tracer.before_tool_callback,
-    after_tool_callback=opik_tracer.after_tool_callback,
+generator_agent = LlmAgent(
+    name="content_refiner",
+    model="gemini-2.5-pro",
+    instruction="You refine content based on critical feedback to create the best possible final version.",
+    description="Refines content based on feedback"
 )
 
-# Create parent agent and assign children via sub_agents
-root_agent = LoopAgent(
-    name="root_agent",
-    sub_agents=[
-        enrichment_agent,
-        structure_agent,
-        search_agent,
-        tech_lead_agent,
-        coder_agent,
-        coder_reviewer_agent
-    ],
-    max_iterations=1,
+# Create the coordinating agent
+root_agent = LlmAgent(
+    name="self_reflection_system",
+    model="gemini-2.5-flash",
+    instruction="""You coordinate the content creation process:
+    1. Send user requests to the content creator
+    2. Have the content evaluator review the initial content
+    3. If significant improvements are needed, send the content and feedback to the refiner
+    4. Return the final content to the user""",
+    description="Manages the self-reflection workflow",
+    sub_agents=[enrichment_agent, search_agent, main_agent, critique_agent, generator_agent]
 )
+
 
 session_service = InMemorySessionService()
 
