@@ -150,7 +150,7 @@ generator_agent = LlmAgent(
 )
 
 # Create the coordinating agent
-root_agent = LlmAgent(
+root_agent = LoopAgent(
     name="self_reflection_system",
     model="gemini-2.5-flash",
     instruction="""You coordinate the content creation process:
