@@ -89,69 +89,77 @@ def load_instruction_from_file(file_name: str) -> str:
 
 
 
+# 1. Defina os nomes das saídas (schemas) como variáveis para fácil referência
+enrichment_schema = 'enrichment_output'
+search_schema = 'search_output'
+creator_schema = 'creator_output'
+critique_schema = 'critique_output'
+refiner_schema = 'refiner_output'
 
+# 2. Defina os sub-agentes usando as variáveis de schema para conectá-los
 
-# Define sub-agents
 enrichment_agent = LlmAgent(
     name="enrichment_agent",
     model="gemini-2.5-flash",
-    instruction="""You are a helpful assistant using the ReACT framework.
+    output_schema=enrichment_schema,  # Parâmetro do agente
+    instruction=f"""You are a helpful assistant using the ReACT framework.
     For each user request:
     1. REASON: Think step-by-step about what information you need
     2. ACT: Use available tools to gather information
     3. OBSERVE: Review the results from tools
     4. Repeat until you can provide a complete response
-    Always make your reasoning explicit before taking actions.""",
+    """,
     description="An assistant that uses reasoning and acting cycles to solve problems"
 )
-
 
 search_agent = LlmAgent(
     name="search_agent",
     model="gemini-2.5-flash",
-    instruction="""Busque no google informações sobre a demanda."""
-    tools=[google_search])
+    output_schema=search_schema,  # Parâmetro do agente
+    instruction=f"""Você receberá uma entrada com a chave '{enrichment_schema}'.
+    Use o valor dessa chave para buscar as informações no Google.
+    """,
+    tools=[google_search]
+)
 
-
-# Create a self-reflecting agent system
 main_agent = LlmAgent(
     name="content_creator",
     model="gemini-2.5-flash",
-    instruction="You are a content creator who generates clear, informative text on various topics.",
+    output_schema=creator_schema,  # Parâmetro do agente
+    instruction=f"""You are a content creator. You will receive input with the key '{search_schema}'.
+    Generate a clear, informative text based on the value of that key.
+    """,
     description="Creates initial content based on user requests"
 )
 
 critique_agent = LlmAgent(
     name="content_evaluator",
-    model="gemini-2.5-flash",  # Can use a lighter model for critique
-    instruction="""You are a critical evaluator of content.
-    For each piece of content, analyze:
-    - Clarity and coherence
-    - Factual accuracy
-    - Completeness
-    - Relevance to the original request
-    Provide specific suggestions for improvement.""",
+    model="gemini-2.5-flash",
+    output_schema=critique_schema,  # Parâmetro do agente
+    instruction=f"""You are a critical evaluator. You will receive input with the key '{creator_schema}'.
+    Analyze the received content based on clarity, accuracy, and completeness.
+    Your output's value should be an object containing the original content and your critique.'.
+    """,
     description="Evaluates content and provides constructive feedback"
 )
 
 generator_agent = LlmAgent(
     name="content_refiner",
     model="gemini-2.5-flash",
-    instruction="""You coordinate the content creation process:
-    1. Send user requests to the content creator
-    2. Have the content evaluator review the initial content
-    3. If significant improvements are needed, send the content and feedback to the refiner
-    4. Return the final content to the user""",
+    output_schema=refiner_schema,  # Parâmetro do agente
+    instruction=f"""You are a content refiner. You will receive a complex object under the key '{critique_schema}'.
+    This object contains 'original_content' and 'critique'.
+    Generate a new version of the content that addresses all points from the critique.
+    """,
     description="Refines content based on feedback"
 )
 
-# Create the coordinating agent
-root_agent = LoopAgent(
+# 3. Crie o agente coordenador com a sequência definida
+root_agent = SequentialAgent(
     name="self_reflection_system",
     sub_agents=[enrichment_agent, search_agent, main_agent, critique_agent, generator_agent],
-    max_iterations=1
+    description="Execute the enrichment, search, main, critique and generator agent."
 )
-
 
 session_service = InMemorySessionService()
 
