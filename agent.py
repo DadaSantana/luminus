@@ -124,7 +124,7 @@ search_agent = LlmAgent(
 # Create a self-reflecting agent system
 main_agent = LlmAgent(
     name="content_creator",
-    model="gemini-2.5-pro",
+    model="gemini-2.5-flash",
     instruction="You are a content creator who generates clear, informative text on various topics.",
     description="Creates initial content based on user requests"
 )
@@ -144,7 +144,7 @@ critique_agent = LlmAgent(
 
 generator_agent = LlmAgent(
     name="content_refiner",
-    model="gemini-2.5-pro",
+    model="gemini-2.5-flash",
     instruction="""You coordinate the content creation process:
     1. Send user requests to the content creator
     2. Have the content evaluator review the initial content
