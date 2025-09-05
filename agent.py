@@ -116,7 +116,7 @@ search_agent = LlmAgent(
     name="search_agent",
     model="gemini-2.5-flash",
     output_schema=search_schema,  # Parâmetro do agente
-    instruction=f"""Você receberá uma entrada com a chave '{enrichment_schema}'.
+    instruction=f"""Você receberá uma entrada com a chave enrichment_output.
     Use o valor dessa chave para buscar as informações no Google.
     """,
     tools=[google_search]
@@ -126,7 +126,7 @@ main_agent = LlmAgent(
     name="content_creator",
     model="gemini-2.5-flash",
     output_schema=creator_schema,  # Parâmetro do agente
-    instruction=f"""You are a content creator. You will receive input with the key '{search_schema}'.
+    instruction=f"""You are a content creator. You will receive input with the key search_output.
     Generate a clear, informative text based on the value of that key.
     """,
     description="Creates initial content based on user requests"
@@ -136,7 +136,7 @@ critique_agent = LlmAgent(
     name="content_evaluator",
     model="gemini-2.5-flash",
     output_schema=critique_schema,  # Parâmetro do agente
-    instruction=f"""You are a critical evaluator. You will receive input with the key '{creator_schema}'.
+    instruction=f"""You are a critical evaluator. You will receive input with the key creator_output.
     Analyze the received content based on clarity, accuracy, and completeness.
     Your output's value should be an object containing the original content and your critique.'.
     """,
@@ -147,8 +147,7 @@ generator_agent = LlmAgent(
     name="content_refiner",
     model="gemini-2.5-flash",
     output_schema=refiner_schema,  # Parâmetro do agente
-    instruction=f"""You are a content refiner. You will receive a complex object under the key '{critique_schema}'.
-    This object contains 'original_content' and 'critique'.
+    instruction=f"""You are a content refiner. You will receive a complex object under the key critique_output.
     Generate a new version of the content that addresses all points from the critique.
     """,
     description="Refines content based on feedback"
