@@ -8,7 +8,7 @@ import uuid
 # Third-party imports
 from dotenv import load_dotenv
 from google.adk.agents import LoopAgent
-from google.adk.agents import Agent, LlmAgent
+from google.adk.agents import Agent, LlmAgent, SequentialAgent
 from google.adk.artifacts import InMemoryArtifactService
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
