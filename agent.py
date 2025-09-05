@@ -90,7 +90,7 @@ def load_instruction_from_file(file_name: str) -> str:
 
 
 # 1. Defina os nomes das saídas (schemas) como variáveis para fácil referência
-enrichment_schema = 'enrichment_output'
+enrichment_schema = 
 search_schema = 'search_output'
 creator_schema = 'creator_output'
 critique_schema = 'critique_output'
@@ -101,8 +101,8 @@ refiner_schema = 'refiner_output'
 enrichment_agent = LlmAgent(
     name="enrichment_agent",
     model="gemini-2.5-flash",
-    output_schema=enrichment_schema,  # Parâmetro do agente
-    instruction=f"""You are a helpful assistant using the ReACT framework.
+    output_key='enrichment_output',  # Parâmetro do agente
+    instruction="""You are a helpful assistant using the ReACT framework.
     For each user request:
     1. REASON: Think step-by-step about what information you need
     2. ACT: Use available tools to gather information
@@ -115,8 +115,8 @@ enrichment_agent = LlmAgent(
 search_agent = LlmAgent(
     name="search_agent",
     model="gemini-2.5-flash",
-    output_schema=search_schema,  # Parâmetro do agente
-    instruction=f"""Você receberá uma entrada com a chave enrichment_output.
+    output_key=search_schema,  # Parâmetro do agente
+    instruction="""Você receberá uma entrada com a chave enrichment_output.
     Use o valor dessa chave para buscar as informações no Google.
     """,
     tools=[google_search]
@@ -125,8 +125,8 @@ search_agent = LlmAgent(
 main_agent = LlmAgent(
     name="content_creator",
     model="gemini-2.5-flash",
-    output_schema=creator_schema,  # Parâmetro do agente
-    instruction=f"""You are a content creator. You will receive input with the key search_output.
+    output_key=creator_schema,  # Parâmetro do agente
+    instruction="""You are a content creator. You will receive input with the key search_output.
     Generate a clear, informative text based on the value of that key.
     """,
     description="Creates initial content based on user requests"
@@ -135,10 +135,10 @@ main_agent = LlmAgent(
 critique_agent = LlmAgent(
     name="content_evaluator",
     model="gemini-2.5-flash",
-    output_schema=critique_schema,  # Parâmetro do agente
-    instruction=f"""You are a critical evaluator. You will receive input with the key creator_output.
+    output_key=critique_schema,  # Parâmetro do agente
+    instruction="""You are a critical evaluator. You will receive input with the key creator_output.
     Analyze the received content based on clarity, accuracy, and completeness.
-    Your output's value should be an object containing the original content and your critique.'.
+    Your output's value should be an object containing the original content and your critique.
     """,
     description="Evaluates content and provides constructive feedback"
 )
@@ -146,8 +146,8 @@ critique_agent = LlmAgent(
 generator_agent = LlmAgent(
     name="content_refiner",
     model="gemini-2.5-flash",
-    output_schema=refiner_schema,  # Parâmetro do agente
-    instruction=f"""You are a content refiner. You will receive a complex object under the key critique_output.
+    output_key=refiner_schema,  # Parâmetro do agente
+    instruction="""You are a content refiner. You will receive a complex object under the key critique_output.
     Generate a new version of the content that addresses all points from the critique.
     """,
     description="Refines content based on feedback"
