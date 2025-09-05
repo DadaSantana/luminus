@@ -145,21 +145,19 @@ critique_agent = LlmAgent(
 generator_agent = LlmAgent(
     name="content_refiner",
     model="gemini-2.5-pro",
-    instruction="You refine content based on critical feedback to create the best possible final version.",
+    instruction="""You coordinate the content creation process:
+    1. Send user requests to the content creator
+    2. Have the content evaluator review the initial content
+    3. If significant improvements are needed, send the content and feedback to the refiner
+    4. Return the final content to the user""",
     description="Refines content based on feedback"
 )
 
 # Create the coordinating agent
 root_agent = LoopAgent(
     name="self_reflection_system",
-    model="gemini-2.5-flash",
-    instruction="""You coordinate the content creation process:
-    1. Send user requests to the content creator
-    2. Have the content evaluator review the initial content
-    3. If significant improvements are needed, send the content and feedback to the refiner
-    4. Return the final content to the user""",
-    description="Manages the self-reflection workflow",
-    sub_agents=[enrichment_agent, search_agent, main_agent, critique_agent, generator_agent]
+    sub_agents=[enrichment_agent, search_agent, main_agent, critique_agent, generator_agent],
+    max_iterations=1
 )
 
 
