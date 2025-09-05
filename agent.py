@@ -95,30 +95,22 @@ def load_instruction_from_file(file_name: str) -> str:
 enrichment_agent = LlmAgent(
     name="enrichment_agent",
     model="gemini-2.5-flash",
-    instruction=load_instruction_from_file("enrichment_agent_instruction.txt"),
-    output_key='enrichment_output',
-    before_agent_callback=opik_tracer.before_agent_callback,
-    after_agent_callback=opik_tracer.after_agent_callback,
-    before_model_callback=opik_tracer.before_model_callback,
-    after_model_callback=opik_tracer.after_model_callback,
-    before_tool_callback=opik_tracer.before_tool_callback,
-    after_tool_callback=opik_tracer.after_tool_callback,
+    instruction="""You are a helpful assistant using the ReACT framework.
+    For each user request:
+    1. REASON: Think step-by-step about what information you need
+    2. ACT: Use available tools to gather information
+    3. OBSERVE: Review the results from tools
+    4. Repeat until you can provide a complete response
+    Always make your reasoning explicit before taking actions.""",
+    description="An assistant that uses reasoning and acting cycles to solve problems"
 )
 
 
 search_agent = LlmAgent(
     name="search_agent",
     model="gemini-2.5-flash",
-    instruction=load_instruction_from_file("search_agent_instruction.txt"),
-    tools=[google_search],
-    output_key='search_output',
-    before_agent_callback=opik_tracer.before_agent_callback,
-    after_agent_callback=opik_tracer.after_agent_callback,
-    before_model_callback=opik_tracer.before_model_callback,
-    after_model_callback=opik_tracer.after_model_callback,
-    before_tool_callback=opik_tracer.before_tool_callback,
-    after_tool_callback=opik_tracer.after_tool_callback,
-)
+    instruction="""Busque no google informações sobre a demanda."""
+    tools=[google_search])
 
 
 # Create a self-reflecting agent system
