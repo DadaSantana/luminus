@@ -13,77 +13,10 @@ from google.adk.artifacts import InMemoryArtifactService
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.adk.tools import google_search
-use_opik_tracer = False
-opik_tracer = None
-try:
-    from opik.integrations.adk import OpikTracer
-    # Habilita OPIK somente se explicitamente configurado
-    use_opik_tracer = os.getenv("OPIK_ENABLED", "0").lower() in ("1", "true", "yes")
-    if use_opik_tracer:
-        opik_tracer = OpikTracer()
-except Exception:
-    # Opik não disponível; segue sem tracer
-    opik_tracer = None
-    use_opik_tracer = False
-
-# Local imports
-#from utils.generate_diagram import generate_diagram_from_code
-#from utils.generate_outputs import save_output_keys_to_markdown
-#from utils.generate_tech_spec import generate_technical_spec_from_code
-ts = time.time()
- 
-os.environ["OPIK_API_KEY"] = "EKCpqukuxgumDPQGxJCINTyIW" 
-os.environ["OPIK_WORKSPACE"] = "geanderson-lenz"
 
 load_dotenv() # Moved load_dotenv() to be earlier
 
 
-if opik_tracer is None:
-    # no-op callbacks
-    class _Noop:
-        def before_agent_callback(self, *args, **kwargs):
-            return None
-        def after_agent_callback(self, *args, **kwargs):
-            return None
-        def before_model_callback(self, *args, **kwargs):
-            return None
-        def after_model_callback(self, *args, **kwargs):
-            return None
-        def before_tool_callback(self, *args, **kwargs):
-            return None
-        def after_tool_callback(self, *args, **kwargs):
-            return None
-    opik_tracer = _Noop()
-
-
-def load_instruction_from_file(file_name: str) -> str:
-    """
-    Lê o conteúdo de um arquivo de instrução (.txt) localizado na pasta 'instructions'.
-
-    Args:
-        file_name (str): O nome do arquivo de instrução (ex: 'my_instruction.txt').
-
-    Returns:
-        str: O conteúdo do arquivo como uma string.
-
-    Raises:
-        FileNotFoundError: Se o arquivo de instrução não for encontrado.
-        IOError: Se houver um erro ao ler o arquivo.
-    """
-    # Obtém o diretório do arquivo atual (utils.py), que está em 'planner'
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    # Constrói o caminho para a pasta 'instructions' que está no mesmo diretório
-    instructions_dir = os.path.join(current_dir, 'instructions')
-    file_path = os.path.join(instructions_dir, file_name)
-
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Arquivo de instrução não encontrado: {file_path}")
-
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return f.read()
-    except Exception as e:
-        raise IOError(f"Erro ao ler o arquivo de instrução {file_path}: {e}")
 
 
 
@@ -95,7 +28,7 @@ def load_instruction_from_file(file_name: str) -> str:
 enrichment_agent = LlmAgent(
     name="enrichment_agent",
     model="gemini-2.5-flash",
-    output_key="enrichment_output",  # Parâmetro do agente
+    output_key="enrichment_output",  # A saída deste agente será rotulada como 'enrichment_output'
     instruction="""You are a helpful assistant using the ReACT framework.
     For each user request:
     1. REASON: Think step-by-step about what information you need
@@ -108,36 +41,45 @@ enrichment_agent = LlmAgent(
 search_agent = LlmAgent(
     name="search_agent",
     model="gemini-2.5-flash",
-    output_key="search_output",  # Parâmetro do agente
-    instruction="""Você receberá uma entrada com a chave enrichment_output.
-    Use o valor dessa chave para buscar as informações no Google.""",
+    output_key="search_output",  # A saída deste agente será rotulada como 'search_output'
+    # A instrução agora injeta diretamente o valor da saída do agente anterior.
+    instruction="""Use the value from the enrichment step below to search for information on Google.
+    Enriched Query: {enrichment_output}""",
     tools=[google_search]
 )
 
 main_agent = LlmAgent(
     name="content_creator",
     model="gemini-2.5-flash",
-    output_key="creator_output",  # Parâmetro do agente
-    instruction="""You are a content creator. You will receive input with the key search_output.
-    Generate a clear, informative text based on the value of that key.""",
+    output_key="creator_output",  # A saída deste agente será rotulada como 'creator_output'
+    # Injeta o resultado da busca diretamente na instrução.
+    instruction="""You are a content creator. You will receive search results below.
+    Generate a clear, informative text based on them.
+    Search Results: {search_output}""",
     description="Creates initial content based on user requests"
 )
 
 critique_agent = LlmAgent(
     name="content_evaluator",
     model="gemini-2.5-flash",
-    output_key="critique_output",  # Parâmetro do agente
-    instruction="""You are a critical evaluator. You will receive input with the key creator_output.
-    Analyze the received content based on clarity, accuracy, and completeness.
-    Your output's value should be an object containing the original content and your critique.""",
+    output_key="critique_output",  # A saída deste agente será rotulada como 'critique_output'
+    # Injeta o conteúdo criado para ser analisado.
+    instruction="""You are a critical evaluator. Analyze the content below based on clarity, accuracy, and completeness.
+    Your output must be a JSON object containing two keys: 'original_content' (the content you received) and 'critique' (your feedback).
+    
+    Content to Evaluate: {creator_output}""",
     description="Evaluates content and provides constructive feedback"
 )
 
 generator_agent = LlmAgent(
     name="content_refiner",
     model="gemini-2.5-flash",
-    instruction="""You are a content refiner. You will receive a complex object under the key critique_output.
-    Generate a new version of the content that addresses all points from the critique.""",
+    # O último agente não precisa de um output_key, a menos que seja parte de uma sequência maior.
+    # Injeta o objeto de crítica para refinar o conteúdo.
+    instruction="""You are a content refiner. You will receive a JSON object with the original content and a critique.
+    Generate a new version of the content that addresses all points from the critique.
+    
+    Critique Object: {critique_output}""",
     description="Refines content based on feedback"
 )
 
@@ -147,8 +89,3 @@ root_agent = SequentialAgent(
     sub_agents=[enrichment_agent, search_agent, main_agent, critique_agent, generator_agent],
     description="Execute the enrichment, search, main, critique and generator agent."
 )
-
-session_service = InMemorySessionService()
-
-APP_NAME = "hello_app"
-USER_ID = "demo-user"
