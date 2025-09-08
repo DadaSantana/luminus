@@ -158,11 +158,10 @@ export function ChatSidebar({ onSessionSelect, updateSessionRef }: ChatSidebarPr
 
   const allAgents = [
     { key: 'enrichment_agent', label: 'Enrichment Agent', desc: 'Enriquece e complementa conteúdos.' },
-    { key: 'structure_agent', label: 'Structure Agent', desc: 'Define a estrutura do guia e tópicos.' },
     { key: 'search_agent', label: 'Search Agent', desc: 'Pesquisa referências e exemplos (Google Search).' },
-    { key: 'tech_lead_agent', label: 'Tech Lead Agent', desc: 'Orquestra e consolida decisões técnicas.' },
-    { key: 'coder_agent', label: 'Coder Agent', desc: 'Gera código e implementações.' },
-    { key: 'coder_reviewer_agent', label: 'Code Reviewer Agent', desc: 'Revisa e garante qualidade do código.' },
+    { key: 'main_agent', label: 'Main Agent', desc: 'Agente principal que coordena o processo.' },
+    { key: 'critique_agent', label: 'Critique Agent', desc: 'Analisa e critica o conteúdo gerado.' },
+    { key: 'generator_agent', label: 'Generator Agent', desc: 'Gera conteúdo e implementações.' },
   ];
   const getTranscript = useAgentEventsStore((s) => s.getAgentTranscript);
   const getAgentStatus = useAgentEventsStore((s) => s.getAgentStatus);
