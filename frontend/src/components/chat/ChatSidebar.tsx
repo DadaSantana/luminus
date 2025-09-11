@@ -159,15 +159,12 @@ export function ChatSidebar({ onSessionSelect, updateSessionRef }: ChatSidebarPr
   const allAgents = [
     { key: 'enrichment_agent', label: 'Enrichment Agent', desc: 'Enriquece e complementa conteúdos.' },
     { key: 'search_agent', label: 'Search Agent', desc: 'Pesquisa referências e exemplos (Google Search).' },
-<<<<<<< HEAD
     { key: 'main_agent', label: 'Main Agent', desc: 'Agente principal que coordena o processo.' },
     { key: 'critique_agent', label: 'Critique Agent', desc: 'Analisa e critica o conteúdo gerado.' },
     { key: 'generator_agent', label: 'Generator Agent', desc: 'Gera conteúdo e implementações.' },
-=======
     { key: 'content_creator', label: 'Content Creator', desc: 'Cria conteúdo inicial baseado nas solicitações.' },
     { key: 'content_evaluator', label: 'Content Evaluator', desc: 'Avalia e fornece feedback sobre o conteúdo.' },
     { key: 'content_refiner', label: 'Content Refiner', desc: 'Refina o conteúdo com base no feedback.' },
->>>>>>> 8a73d35 (update 11/09 08:42)
   ];
   const getTranscript = useAgentEventsStore((s) => s.getAgentTranscript);
   const getAgentStatus = useAgentEventsStore((s) => s.getAgentStatus);
