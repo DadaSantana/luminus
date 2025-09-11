@@ -814,11 +814,10 @@ async def run_sse(request: RunSSERequest):
                     # Sequência real de subagentes definidos em agent.py (ordem do LoopAgent)
                     agent_sequence = [
                         "enrichment_agent",
-                        "structure_agent",
                         "search_agent",
-                        "tech_lead_agent",
-                        "coder_agent",
-                        "coder_reviewer_agent",
+                        "content_creator",
+                        "content_evaluator",
+                        "content_refiner",
                     ]
                     current_agent_idx = 0
                     total_emitted = 0

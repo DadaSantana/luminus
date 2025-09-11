@@ -162,6 +162,9 @@ export function ChatSidebar({ onSessionSelect, updateSessionRef }: ChatSidebarPr
     { key: 'main_agent', label: 'Main Agent', desc: 'Agente principal que coordena o processo.' },
     { key: 'critique_agent', label: 'Critique Agent', desc: 'Analisa e critica o conteúdo gerado.' },
     { key: 'generator_agent', label: 'Generator Agent', desc: 'Gera conteúdo e implementações.' },
+    { key: 'content_creator', label: 'Content Creator', desc: 'Cria conteúdo inicial baseado nas solicitações.' },
+    { key: 'content_evaluator', label: 'Content Evaluator', desc: 'Avalia e fornece feedback sobre o conteúdo.' },
+    { key: 'content_refiner', label: 'Content Refiner', desc: 'Refina o conteúdo com base no feedback.' },
   ];
   const getTranscript = useAgentEventsStore((s) => s.getAgentTranscript);
   const getAgentStatus = useAgentEventsStore((s) => s.getAgentStatus);
@@ -169,13 +172,8 @@ export function ChatSidebar({ onSessionSelect, updateSessionRef }: ChatSidebarPr
   const _events = useAgentEventsStore((s) => s.eventsBySession[activeSessionId || ""]);
   const _statuses = useAgentEventsStore((s) => s.statusBySession[activeSessionId || ""]);
 
-  // Filtrar agentes que já têm eventos ou status na sessão atual, mantendo a ordem sequencial
-  const activeAgents = activeSessionId ? allAgents.filter(agent => {
-    const { text } = getTranscript(activeSessionId, agent.key);
-    const status = getAgentStatus(activeSessionId, agent.key);
-    // Mostrar se tem conteúdo ou se já foi iniciado (startedAt existe)
-    return text.length > 0 || status.startedAt;
-  }) : [];
+  // Mostrar todos os agentes da sequência quando há uma sessão ativa
+  const activeAgents = activeSessionId ? allAgents : [];
 
   return (
     <div className="h-screen w-80 bg-background border-r flex flex-col overflow-hidden">
