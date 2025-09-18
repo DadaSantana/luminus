@@ -13,6 +13,9 @@ import { apiService, type FirestoreMessage, type FirestoreSession } from "@/lib/
 import { useLocaleStore } from "@/store/localeStore";
 import { useAgentEventsStore } from "@/store/agentEventsStore";
 import { useSessionContext } from "@/contexts/SessionContext";
+import { ChatInput } from "./ChatInput";
+import { GoogleDrivePicker } from "./GoogleDrivePicker";
+import { GoogleDriveFile } from "@/lib/googleDrive";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -131,6 +134,8 @@ export function ChatInterface() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
+  const [showGoogleDrivePicker, setShowGoogleDrivePicker] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const { updateSession } = useSessionContext();
   const appendAgentEvent = useAgentEventsStore((s) => s.appendEvent);
   const updateAgentStatus = useAgentEventsStore((s) => s.updateStatus);
@@ -358,6 +363,54 @@ export function ChatInterface() {
     const textarea = e.target;
     textarea.style.height = 'auto';
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+  };
+
+  const handleFileSelect = (file: File) => {
+    setAttachedFiles(prev => [...prev, file]);
+    toast({
+      title: "Arquivo anexado",
+      description: `${file.name} foi anexado à mensagem`,
+    });
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleGoogleDriveFileSelect = async (driveFile: GoogleDriveFile) => {
+    try {
+      // Aqui você pode implementar a lógica para baixar o arquivo do Google Drive
+      // Por enquanto, vamos apenas mostrar uma notificação
+      toast({
+        title: "Arquivo selecionado",
+        description: `${driveFile.name} foi selecionado do Google Drive`,
+      });
+    } catch (error) {
+      console.error('Erro ao processar arquivo do Google Drive:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao processar arquivo do Google Drive",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleGoogleDriveConnect = () => {
+    setShowGoogleDrivePicker(true);
+  };
+
+  const handleOneDriveConnect = () => {
+    toast({
+      title: "Em breve",
+      description: "Integração com OneDrive será implementada em breve",
+    });
+  };
+
+  const handleDropboxConnect = () => {
+    toast({
+      title: "Em breve",
+      description: "Integração com Dropbox será implementada em breve",
+    });
   };
 
   const confirmDeleteSession = async () => {
@@ -610,35 +663,26 @@ export function ChatInterface() {
       </div>
 
       {/* Input */}
-      <div className="border-t bg-background/30 dark:bg-white/5 backdrop-blur-sm p-6">
-        <form onSubmit={sendMessage} className="max-w-4xl mx-auto">
-          <div className="flex gap-3">
-            <div className="flex-1 relative">
-              <textarea
-                ref={textareaRef}
-                value={message}
-                onChange={handleTextareaChange}
-                onKeyPress={handleKeyPress}
-                placeholder={t("typeYourMessage")}
-                className="w-full min-h-[50px] max-h-[120px] px-4 py-3 pr-12 rounded-2xl border border-input bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                disabled={sending || thinking}
-              />
-              <Button
-                type="submit"
-                size="sm"
-                disabled={!message.trim() || sending || thinking}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 bg-luminus-primary hover:bg-luminus-primary/90"
-              >
-                {sending ? (
-                  <LoadingSpinner size="sm" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-        </form>
-      </div>
+      <ChatInput
+        message={message}
+        setMessage={setMessage}
+        onSend={sendMessage}
+        sending={sending}
+        thinking={thinking}
+        attachedFiles={attachedFiles}
+        onFileSelect={handleFileSelect}
+        onRemoveFile={handleRemoveFile}
+        onGoogleDriveConnect={handleGoogleDriveConnect}
+        onOneDriveConnect={handleOneDriveConnect}
+        onDropboxConnect={handleDropboxConnect}
+      />
+
+      {/* Google Drive Picker */}
+      <GoogleDrivePicker
+        open={showGoogleDrivePicker}
+        onOpenChange={setShowGoogleDrivePicker}
+        onFileSelect={handleGoogleDriveFileSelect}
+      />
     </div>
   );
 }

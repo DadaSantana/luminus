@@ -172,8 +172,17 @@ export function ChatSidebar({ onSessionSelect, updateSessionRef }: ChatSidebarPr
   const _events = useAgentEventsStore((s) => s.eventsBySession[activeSessionId || ""]);
   const _statuses = useAgentEventsStore((s) => s.statusBySession[activeSessionId || ""]);
 
-  // Mostrar todos os agentes da sequência quando há uma sessão ativa
-  const activeAgents = activeSessionId ? allAgents : [];
+  // Mostrar apenas agentes que foram iniciados durante a execução, ordenados por ordem de início
+  const activeAgents = activeSessionId ? allAgents
+    .filter(agent => {
+      const status = getAgentStatus(activeSessionId, agent.key);
+      return status.startedAt; // Só mostra agentes que foram iniciados
+    })
+    .sort((a, b) => {
+      const statusA = getAgentStatus(activeSessionId, a.key);
+      const statusB = getAgentStatus(activeSessionId, b.key);
+      return (statusA.startedAt || 0) - (statusB.startedAt || 0); // Ordena por ordem de início
+    }) : [];
 
   return (
     <div className="h-screen w-80 bg-background border-r flex flex-col overflow-hidden">
