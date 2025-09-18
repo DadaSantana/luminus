@@ -88,6 +88,31 @@ export function ChatInput({
     return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
   };
 
+  const getFileTypeLabel = (file: File) => {
+    const mimeType = file.type;
+    if (mimeType.startsWith('image/')) return 'Imagem';
+    if (mimeType.startsWith('video/')) return 'Vídeo';
+    if (mimeType.startsWith('audio/')) return 'Áudio';
+    if (mimeType.includes('pdf')) return 'PDF';
+    if (mimeType.includes('word')) return 'Documento Word';
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'Folha de cálculo';
+    if (mimeType.includes('presentation')) return 'Apresentação';
+    if (mimeType.includes('text/')) return 'Documento de texto';
+    return 'Arquivo';
+  };
+
+  const getFileIcon = (file: File) => {
+    const mimeType = file.type;
+    if (mimeType.startsWith('image/')) return '🖼️';
+    if (mimeType.startsWith('video/')) return '🎥';
+    if (mimeType.startsWith('audio/')) return '🎵';
+    if (mimeType.includes('pdf')) return '📄';
+    if (mimeType.includes('word')) return '📝';
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊';
+    if (mimeType.includes('presentation')) return '📽️';
+    return '📄';
+  };
+
   // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
@@ -107,23 +132,29 @@ export function ChatInput({
                 {attachedFiles.map((file, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg text-sm"
+                    className="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
                   >
-                    <File className="h-4 w-4 text-blue-600" />
-                    <span className="text-blue-900 dark:text-blue-100 font-medium">
-                      {file.name}
-                    </span>
-                    <span className="text-blue-700 dark:text-blue-300 text-xs">
-                      {formatFileSize(file.size)}
-                    </span>
+                    <div className="flex items-center justify-center w-8 h-8 bg-green-500 rounded-lg">
+                      <span className="text-white text-lg">
+                        {getFileIcon(file)}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                        {file.name}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {getFileTypeLabel(file)}
+                      </div>
+                    </div>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="h-5 w-5 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                      className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"
                       onClick={() => handleRemoveFile(index)}
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}

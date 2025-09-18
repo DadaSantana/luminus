@@ -379,11 +379,22 @@ export function ChatInterface() {
 
   const handleGoogleDriveFileSelect = async (driveFile: GoogleDriveFile) => {
     try {
-      // Aqui você pode implementar a lógica para baixar o arquivo do Google Drive
-      // Por enquanto, vamos apenas mostrar uma notificação
+      // Criar um objeto File simulado para o arquivo do Google Drive
+      const mockFile = new File(
+        [''], // Conteúdo vazio por enquanto
+        driveFile.name,
+        {
+          type: driveFile.mimeType,
+          lastModified: new Date(driveFile.modifiedTime).getTime()
+        }
+      );
+      
+      // Adicionar à lista de arquivos anexados
+      setAttachedFiles(prev => [...prev, mockFile]);
+      
       toast({
-        title: "Arquivo selecionado",
-        description: `${driveFile.name} foi selecionado do Google Drive`,
+        title: "Arquivo anexado",
+        description: `${driveFile.name} foi anexado à mensagem`,
       });
     } catch (error) {
       console.error('Erro ao processar arquivo do Google Drive:', error);
