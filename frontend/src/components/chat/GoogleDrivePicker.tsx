@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { LoadingSpinner } from "../ui/loading-spinner";
-import { ScrollArea } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { 
   Folder, 
   File, 
@@ -16,8 +16,8 @@ import {
   Loader2,
   LogOut
 } from "lucide-react";
-import { googleDriveService, GoogleDriveFile, GoogleDriveFolder } from "../../lib/googleDrive";
-import { useToast } from "../../hooks/use-toast";
+import { googleDriveService, GoogleDriveFile, GoogleDriveFolder } from "@/lib/googleDrive";
+import { useToast } from "@/hooks/use-toast";
 
 interface GoogleDrivePickerProps {
   open: boolean;
