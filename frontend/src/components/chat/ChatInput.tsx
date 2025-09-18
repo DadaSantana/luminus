@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "../ui/button";
+import { LoadingSpinner } from "../ui/loading-spinner";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Separator } from "../ui/separator";
 import { Plus, Send, Paperclip, Mic, Volume2, X, File } from "lucide-react";
-import { useT } from "@/lib/i18n";
-import { GoogleDriveLogoColored, OneDriveLogoColored, DropboxLogoColored } from "@/components/ui/ProviderLogos";
+import { useT } from "../../lib/i18n";
+import { GoogleDriveLogoColored, OneDriveLogoColored, DropboxLogoColored } from "../ui/ProviderLogos";
 
 interface ChatInputProps {
   message: string;
