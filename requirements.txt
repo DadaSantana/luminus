@@ -1,0 +1,23 @@
+# Dependências principais
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+pydantic>=2.7.2
+python-dotenv>=1.0.0
+firebase-admin>=6.0.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+requests>=2.31.0
+
+# Google ADK
+google-adk==0.1.0
+google-genai
+
+# Dependências para testes
+pytest==7.4.3
+httpx>=0.28.1
+
+# Dependências para APIs externas
+requests>=2.31.0
+
+# Dependência faltante para Google ADK
+deprecated>=1.2.0
