@@ -1,0 +1,57 @@
+# Backend Python files
+*.py
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+requirements.txt
+server.py
+models.py
+agent.py
+firebase_config.py
+multi_agent_data.db
+
+# Backend documentation
+docs/
+instructions/
+
+# Railway and Render configs
+railway.json
+render.yaml
+Procfile
+
+# Firebase config
+firebase.json
+
+# Utils
+utils/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary folders
+tmp/
+temp/
+
+# Other lock files
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
